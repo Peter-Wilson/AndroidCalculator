@@ -6,15 +6,23 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class CalculatorActivity extends AppCompatActivity {
+
+    private double total;
+    private String operation;
+    private boolean equalsJustPressed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
         getSupportActionBar().hide();
+        operation = "";
+        equalsJustPressed = true;
+
 
 
         TextView output = (TextView)findViewById(R.id.value);
@@ -49,6 +57,12 @@ public class CalculatorActivity extends AppCompatActivity {
     {
         TextView value = (TextView) findViewById(R.id.value);
         String enteredValue = value.getText().toString();
+
+        if(equalsJustPressed)
+        {
+            enteredValue = "0";
+            equalsJustPressed = false;
+        }
 
         switch(v.getId()) {
             case (R.id.one):
@@ -116,5 +130,45 @@ public class CalculatorActivity extends AppCompatActivity {
                 value.setText("0");
             else
                 value.setText(enteredValue.substring(0,enteredValue.length()-1));
+    }
+
+    public void PlusMinus(View v)
+    {
+        TextView value = (TextView) findViewById(R.id.value);
+
+        if(!operation.equals("")) {
+            Equals(v);
+        }
+        else
+        {
+            total = Double.parseDouble(value.getText().toString());
+            equalsJustPressed = true;
+        }
+
+        operation = ((Button)v).getText().toString();
+
+    }
+
+    public void Equals(View v)
+    {
+        if(equalsJustPressed) return;
+        
+        TextView value = (TextView) findViewById(R.id.value);
+
+        switch(operation){
+            case "+":
+                total += Double.parseDouble(value.getText().toString());
+                break;
+
+            case "-":
+                total -= Double.parseDouble(value.getText().toString());
+                break;
+        }
+
+        value.setText(""+total);
+        total = 0;
+        equalsJustPressed = true;
+        operation = "";
+
     }
 }
