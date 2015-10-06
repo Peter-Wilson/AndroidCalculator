@@ -11,8 +11,10 @@ import android.widget.TextView;
 
 public class CalculatorActivity extends AppCompatActivity {
 
-    private double total;
+    private float total;
+    private float operator;
     private String operation;
+    private String prev_operation;
     private boolean equalsJustPressed;
 
     @Override
@@ -21,6 +23,9 @@ public class CalculatorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_calculator);
         getSupportActionBar().hide();
         operation = "";
+        prev_operation = "";
+        total = 0;
+        operator = 0;
         equalsJustPressed = true;
 
 
@@ -101,13 +106,13 @@ public class CalculatorActivity extends AppCompatActivity {
 
         }
 
-        value.setText(enteredValue);
+        setTheOutput(value, enteredValue);
     }
 
     public String appendDigit(String digit, String output)
     {
-        //don't allow more than 7 characters
-        if(output.length() > 20) return output;
+        //don't allow more than 9 characters
+        if(output.length() > 11) return output;
 
         //only allow a single decimal
         if(digit.equals(".") && output.contains(".")) return output;
@@ -121,15 +126,44 @@ public class CalculatorActivity extends AppCompatActivity {
         return output+digit;
     }
 
+    public void setTheOutput(TextView view, String s)
+    {
+        s.replace('*','-');
+        view.setText(s);
+    }
+
+    public void OperandFunction(View v)
+    {
+        TextView value = (TextView) findViewById(R.id.value);
+        if(value.getText().toString().equals("ERROR")) return;
+
+        switch(((Button)v).getText().toString()) {
+            //don't perform on total but on new value
+            case "+-":
+                if(equalsJustPressed == true) total *= -1;
+                if(Float.valueOf(value.getText().toString()) == 0) return;
+                setTheOutput(value, "" + (Float.valueOf(value.getText().toString()) * -1));
+                break;
+
+
+            //don't perform on total but on new value
+            case "%":
+                if(equalsJustPressed == true) total /= 100;
+                setTheOutput(value, "" + (Float.valueOf(value.getText().toString()) / 100));
+                break;
+        }
+    }
+
     public void Correct(View v)
     {
-            TextView value = (TextView) findViewById(R.id.value);
-            String enteredValue = value.getText().toString();
+        Clear();
+    }
 
-            if(enteredValue.length() == 1)
-                value.setText("0");
-            else
-                value.setText(enteredValue.substring(0,enteredValue.length()-1));
+    private void Clear() {
+        ((TextView) findViewById(R.id.value)).setText("0");
+        total = 0;
+        operation = "";
+        equalsJustPressed = false;
     }
 
     public void PlusMinus(View v)
@@ -141,7 +175,10 @@ public class CalculatorActivity extends AppCompatActivity {
         }
         else
         {
-            total = Double.parseDouble(value.getText().toString());
+            if(value.getText().toString().equals("ERROR")) return;
+            operator = Float.valueOf(value.getText().toString());
+            total = operator;
+            setTheOutput(value, "0");
             equalsJustPressed = true;
         }
 
@@ -151,23 +188,40 @@ public class CalculatorActivity extends AppCompatActivity {
 
     public void Equals(View v)
     {
-        if(equalsJustPressed) return;
         
         TextView value = (TextView) findViewById(R.id.value);
+        if(operation != "") {
+            operator = Float.valueOf(value.getText().toString());
+        }
+        else if(prev_operation != "") {
+            operation = prev_operation;
+        }
 
         switch(operation){
             case "+":
-                total += Double.parseDouble(value.getText().toString());
+                total += operator;
+                setTheOutput(value, "" + total);
                 break;
 
             case "-":
-                total -= Double.parseDouble(value.getText().toString());
+                total -= operator;
+                setTheOutput(value, "" + total);
+                break;
+
+            case "/":
+                if(operator == 0) { total = 0; setTheOutput(value, "ERROR");break; }
+                total /= operator;
+                setTheOutput(value, "" + total);
+                break;
+
+            case "x":
+                total *= operator;
+                setTheOutput(value,""+total);
                 break;
         }
 
-        value.setText(""+total);
-        total = 0;
         equalsJustPressed = true;
+        prev_operation = operation;
         operation = "";
 
     }
