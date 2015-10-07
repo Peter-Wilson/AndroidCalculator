@@ -32,9 +32,6 @@ public class CalculatorActivity extends AppCompatActivity {
 
         TextView output = (TextView)findViewById(R.id.value);
         output.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/calculator_led.ttf"));
-
-        TextView history = (TextView)findViewById(R.id.history);
-        history.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/calculator_led.ttf"));
     }
 
     @Override
